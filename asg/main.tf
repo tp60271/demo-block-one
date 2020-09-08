@@ -64,7 +64,7 @@ resource "aws_elb" "bo-asg-web-elb" {
 }
 
 resource "aws_autoscaling_group" "bo-asg-web-asg" {
-  availability_zones   = "${local.availability_zones}"
+  #availability_zones   = "${local.availability_zones}"
   name                 = "bo-asg-terraform-web-asg"
   max_size             = "${var.asg_max}"
   min_size             = "${var.asg_min}"

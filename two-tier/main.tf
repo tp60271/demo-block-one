@@ -107,7 +107,7 @@ resource "aws_instance" "bo-web" {
   # communicate with the resource (instance)
   connection {
     # The default username for our AMI
-    user = "ubuntu"
+    user = "ec2-user"
     host = "${self.public_ip}"
     # The connection will use the local SSH agent for authentication.
   }
@@ -129,11 +129,11 @@ resource "aws_instance" "bo-web" {
   # backend instances.
   subnet_id = "${aws_subnet.bo-default.id}"
 
-  user_data           = "${file("${path.module}/bootstrap_nginx.tpl")}"
+  user_data = "${file("${path.module}/bootstrap_nginx.tpl")}"
 
   tags = {
-		name = "terraform-firsts"	
-		cost-center = "free"
-	}
+    name        = "terraform-firsts"
+    cost-center = "free"
+  }
 
 }
