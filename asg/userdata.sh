@@ -1,3 +1,3 @@
 #!/bin/bash -v
-apt-get update -y
-apt-get install -y nginx > /tmp/nginx.log
+sudo yum -y update
+sudo amazon-linux-extras install nginx1 -y 
