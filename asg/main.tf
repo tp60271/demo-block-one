@@ -3,10 +3,6 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 
-locals {
-  availability_zones = "${split(",", var.availability_zones)}"
-}
-
 # Create a VPC to launch our instances into
 resource "aws_vpc" "bo-asg-default" {
   cidr_block = "10.2.0.0/16"
@@ -44,9 +40,6 @@ resource "aws_elb" "bo-asg-web-elb" {
   subnets         = ["${aws_subnet.bo-asg-default-1.id}", "${aws_subnet.bo-asg-default-2.id}"]
   security_groups = ["${aws_security_group.bo-asg-default.id}"]
 
-  # The same availability zone as our instances
-  #availability_zones = "${local.availability_zones}"
-
   listener {
     instance_port     = 80
     instance_protocol = "http"
@@ -64,7 +57,6 @@ resource "aws_elb" "bo-asg-web-elb" {
 }
 
 resource "aws_autoscaling_group" "bo-asg-web-asg" {
-  #availability_zones   = "${local.availability_zones}"
   name                 = "bo-asg-terraform-web-asg"
   max_size             = "${var.asg_max}"
   min_size             = "${var.asg_min}"
@@ -74,7 +66,6 @@ resource "aws_autoscaling_group" "bo-asg-web-asg" {
   load_balancers       = ["${aws_elb.bo-asg-web-elb.name}"]
   vpc_zone_identifier  = ["${aws_subnet.bo-asg-default-1.id}", "${aws_subnet.bo-asg-default-2.id}"]
 
-  #vpc_zone_identifier = ["${split(",", var.availability_zones)}"]
   tag {
     key                 = "Name"
     value               = "bo-asg-web-asg"
@@ -95,7 +86,6 @@ resource "aws_launch_configuration" "bo-asg-web-lc" {
   # Security group
   security_groups = ["${aws_security_group.bo-asg-default.id}"]
   user_data       = "${file("bootstrap_nginx.tpl")}"
-  #key_name        = "${var.key_name}"
   key_name = "${aws_key_pair.auth.id}"
 }
 
