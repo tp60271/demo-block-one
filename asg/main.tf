@@ -33,8 +33,7 @@ resource "aws_subnet" "bo-asg-default" {
 
 resource "aws_elb" "bo-asg-web-elb" {
   name = "bo-asg-terraform-web-asg-elb"
-  vpc_id      = "${aws_vpc.bo-asg-default.id}"
-
+  
   # The same availability zone as our instances
   availability_zones = "${local.availability_zones}"
 
