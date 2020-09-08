@@ -37,7 +37,7 @@ resource "aws_elb" "bo-asg-web-elb" {
   security_groups = ["${aws_security_group.bo-asg-default.id}"]
 
   # The same availability zone as our instances
-  availability_zones = "${local.availability_zones}"
+  #availability_zones = "${local.availability_zones}"
 
   listener {
     instance_port     = 80
