@@ -7,8 +7,33 @@ locals {
   availability_zones = "${split(",", var.availability_zones)}"
 }
 
+# Create a VPC to launch our instances into
+resource "aws_vpc" "bo-asg-default" {
+  cidr_block = "10.2.0.0/16"
+}
+
+# Create an internet gateway to give our subnet access to the outside world
+resource "aws_internet_gateway" "bo-asg-default" {
+  vpc_id = "${aws_vpc.bo-asg-default.id}"
+}
+
+# Grant the VPC internet access on its main route table
+resource "aws_route" "bo-asg-internet_access" {
+  route_table_id         = "${aws_vpc.bo-asg-default.main_route_table_id}"
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = "${aws_internet_gateway.bo-asg-default.id}"
+}
+
+# Create a subnet to launch our instances into
+resource "aws_subnet" "bo-asg-default" {
+  vpc_id                  = "${aws_vpc.bo-asg-default.id}"
+  cidr_block              = "10.2.1.0/24"
+  map_public_ip_on_launch = true
+}
+
 resource "aws_elb" "bo-asg-web-elb" {
   name = "bo-asg-terraform-web-asg-elb"
+  vpc_id      = "${aws_vpc.bo-asg-default.id}"
 
   # The same availability zone as our instances
   availability_zones = "${local.availability_zones}"
@@ -69,6 +94,7 @@ resource "aws_launch_configuration" "bo-asg-web-lc" {
 resource "aws_security_group" "bo-asg-default" {
   name        = "terraform_example_sg"
   description = "Used in the terraform"
+  vpc_id      = "${aws_vpc.bo-asg-default.id}"
 
   # SSH access from anywhere
   ingress {
