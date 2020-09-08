@@ -7,8 +7,8 @@ locals {
   availability_zones = "${split(",", var.availability_zones)}"
 }
 
-resource "aws_elb" "bo-web-elb" {
-  name = "bo-terraform-web-asg-elb"
+resource "aws_elb" "bo-asg-web-elb" {
+  name = "bo-asg-terraform-web-asg-elb"
 
   # The same availability zone as our instances
   availability_zones = "${local.availability_zones}"
@@ -29,20 +29,20 @@ resource "aws_elb" "bo-web-elb" {
   }
 }
 
-resource "aws_autoscaling_group" "bo-web-asg" {
+resource "aws_autoscaling_group" "bo-asg-web-asg" {
   availability_zones   = "${local.availability_zones}"
-  name                 = "bo-terraform-web-asg"
+  name                 = "bo-asg-terraform-web-asg"
   max_size             = "${var.asg_max}"
   min_size             = "${var.asg_min}"
   desired_capacity     = "${var.asg_desired}"
   force_delete         = true
-  launch_configuration = "${aws_launch_configuration.web-lc.name}"
-  load_balancers       = ["${aws_elb.bo-web-elb.name}"]
+  launch_configuration = "${aws_launch_configuration.bo-asg-web-lc.name}"
+  load_balancers       = ["${aws_elb.bo-asg-web-elb.name}"]
 
   #vpc_zone_identifier = ["${split(",", var.availability_zones)}"]
   tag {
     key                 = "Name"
-    value               = "bo-web-asg"
+    value               = "bo-asg-web-asg"
     propagate_at_launch = "true"
   }
 }
@@ -52,21 +52,21 @@ resource "aws_key_pair" "auth" {
   public_key = "${var.public_key_path}"
 }
 
-resource "aws_launch_configuration" "bo-web-lc" {
-  name          = "bo-terraform-example-lc"
+resource "aws_launch_configuration" "bo-asg-web-lc" {
+  name          = "bo-asg-terraform-example-lc"
   image_id      = "${lookup(var.aws_amis, var.aws_region)}"
   instance_type = "${var.instance_type}"
 
   # Security group
-  security_groups = ["${aws_security_group.default.id}"]
-  user_data       = "${file("userdata.sh")}"
+  security_groups = ["${aws_security_group.bo-asg-default.id}"]
+  user_data       = "${file("bootstrap_nginx.tpl")}"
   #key_name        = "${var.key_name}"
   key_name = "${aws_key_pair.auth.id}"
 }
 
 # Our default security group to access
 # the instances over SSH and HTTP
-resource "aws_security_group" "bo-default" {
+resource "aws_security_group" "bo-asg-default" {
   name        = "terraform_example_sg"
   description = "Used in the terraform"
 

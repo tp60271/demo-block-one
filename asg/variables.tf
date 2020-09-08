@@ -4,9 +4,11 @@ variable "aws_region" {
 }
 
 # ubuntu-trusty-14.04 (x64)
+# amazon linnux 2
 variable "aws_amis" {
   default = {
-    "us-east-1" = "ami-5f709f34"
+#    "us-east-1" = "ami-5f709f34"
+    "us-east-1" = "ami-0c94855ba95c71c99"
     "us-west-2" = "ami-7f675e4f"
   }
 }
@@ -21,7 +23,7 @@ variable "key_name" {
 }
 
 variable "instance_type" {
-  default     = "t2.micro"
+  default     = "t3.micro"
   description = "AWS instance type"
 }
 
