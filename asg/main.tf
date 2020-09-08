@@ -25,15 +25,23 @@ resource "aws_route" "bo-asg-internet_access" {
 }
 
 # Create a subnet to launch our instances into
-resource "aws_subnet" "bo-asg-default" {
+resource "aws_subnet" "bo-asg-default-1" {
   vpc_id                  = "${aws_vpc.bo-asg-default.id}"
   cidr_block              = "10.2.1.0/24"
   map_public_ip_on_launch = true
+  availability_zone       = "us-east-1c"
+}
+
+resource "aws_subnet" "bo-asg-default-2" {
+  vpc_id                  = "${aws_vpc.bo-asg-default.id}"
+  cidr_block              = "10.2.2.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "us-east-1a"
 }
 
 resource "aws_elb" "bo-asg-web-elb" {
   name = "bo-asg-terraform-web-asg-elb"
-  subnets         = ["${aws_subnet.bo-asg-default.id}"]
+  subnets         = ["${aws_subnet.bo-asg-default-1.id}","${aws_subnet.bo-asg-default-2.id}"]
   security_groups = ["${aws_security_group.bo-asg-default.id}"]
 
   # The same availability zone as our instances
@@ -64,6 +72,7 @@ resource "aws_autoscaling_group" "bo-asg-web-asg" {
   force_delete         = true
   launch_configuration = "${aws_launch_configuration.bo-asg-web-lc.name}"
   load_balancers       = ["${aws_elb.bo-asg-web-elb.name}"]
+  vpc_zone_identifier  = ["${aws_subnet.bo-asg-default-1.id}","${aws_subnet.bo-asg-default-2.id}"]
 
   #vpc_zone_identifier = ["${split(",", var.availability_zones)}"]
   tag {
