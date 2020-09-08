@@ -33,6 +33,8 @@ resource "aws_subnet" "bo-asg-default" {
 
 resource "aws_elb" "bo-asg-web-elb" {
   name = "bo-asg-terraform-web-asg-elb"
+  subnets         = ["${aws_subnet.bo-asg-default.id}"]
+  security_groups = ["${aws_security_group.bo-asg-default.id}"]
 
   # The same availability zone as our instances
   availability_zones = "${local.availability_zones}"
