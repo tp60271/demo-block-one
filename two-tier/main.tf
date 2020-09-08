@@ -83,7 +83,7 @@ resource "aws_security_group" "bo-default" {
 }
 
 resource "aws_elb" "bo-web" {
-  name = "terraform-web-elb"
+  name = "bo-terraform-web-elb"
 
   subnets         = ["${aws_subnet.bo-default.id}"]
   security_groups = ["${aws_security_group.bo-elb.id}"]
