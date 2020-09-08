@@ -28,12 +28,13 @@ resource "aws_route" "bo-asg-internet_access" {
 resource "aws_subnet" "bo-asg-default" {
   vpc_id                  = "${aws_vpc.bo-asg-default.id}"
   cidr_block              = "10.2.1.0/24"
+  availability_zones = "${local.availability_zones}"
   map_public_ip_on_launch = true
 }
 
 resource "aws_elb" "bo-asg-web-elb" {
   name = "bo-asg-terraform-web-asg-elb"
-  
+
   # The same availability zone as our instances
   availability_zones = "${local.availability_zones}"
 
